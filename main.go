@@ -1,14 +1,17 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/sandysnunes/todo-server/src/controllers"
-	"log"
-	"net/http"
 )
 
 func main() {
+
+	//TODO utilizar GraphQL
 
 	db, err := sqlx.Connect(
 		"postgres",
@@ -17,6 +20,8 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	//TODO utilizar Gin
 
 	http.HandleFunc("/", controllers.Create(db))
 
