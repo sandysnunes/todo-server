@@ -6,7 +6,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/sandysnunes/todo-server/src/controllers"
 )
 
 func main() {
@@ -23,7 +22,7 @@ func main() {
 
 	//TODO utilizar Gin
 
-	http.HandleFunc("/", controllers.Create(db))
+	http.HandleFunc("/", Create(db))
 
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
