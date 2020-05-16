@@ -1,31 +1,17 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	ginEngine := gin.Default()
 
-	//TODO utilizar GraphQL
+	todoController := TodoController{}
 
-	db, err := sqlx.Connect(
-		"postgres",
-		"postgres://postgres:postgres@localhost:5432/todo?sslmode=disable",
-	)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	ginEngine.GET("/todo", todoController.FindAll())
+	ginEngine.GET("/todo/:id", todoController.FindById())
 
-	//TODO utilizar Gin
+	ginEngine.Run(":8080")
 
-	http.HandleFunc("/", Create(db))
-
-	err = http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
 }
