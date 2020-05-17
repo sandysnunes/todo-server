@@ -2,7 +2,7 @@ create table todo (
 	id bigserial primary key,
 	title character varying(100) NOT NULL,
 	description text,
-	favorite boolean
+	favorite boolean not null default false
 );
 
 CREATE TABLE todo_tag(
