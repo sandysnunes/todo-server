@@ -21,6 +21,7 @@ func main() {
 
 	ginEngine.GET("/todo", todoController.FindAll(db))
 	ginEngine.GET("/todo/:id", todoController.FindById(db))
+	ginEngine.POST("/todo", todoController.Create(db))
 
 	err = ginEngine.Run()
 
