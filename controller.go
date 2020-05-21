@@ -1,11 +1,15 @@
 package main
 
+//TODO service and repository
+// Dependecy injection ?
+
 import (
 	"database/sql"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -16,8 +20,8 @@ type TodoController struct {
 func (todoController *TodoController) FindById(db *sqlx.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
 		id := c.Params.ByName("id")
-		var todo = Todo{}
-		err := db.Get(&todo, "SELECT id, title, description, favorite FROM todo where id = $1", id)
+		todo := new(Todo)
+		err := db.Get(todo, "SELECT id, title, description, favorite FROM todo where id = $1", id)
 
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
@@ -31,6 +35,7 @@ func (todoController *TodoController) FindById(db *sqlx.DB) func(*gin.Context) {
 	}
 }
 
+// FindAll is the method to get all the todos from database
 func (todoController *TodoController) FindAll(db *sqlx.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
 		rows, err := db.Query("SELECT id, title, description, favorite FROM todo")
@@ -45,13 +50,13 @@ func (todoController *TodoController) FindAll(db *sqlx.DB) func(*gin.Context) {
 		for rows.Next() {
 			var id int
 			var title string
-			var description sql.NullString
+			var description string
 			var favorite bool
 			err = rows.Scan(&id, &title, &description, &favorite)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error"})
 			}
-			todos = append(todos, Todo{id, title, title, favorite, nil})
+			todos = append(todos, Todo{id, title, description, favorite, nil})
 		}
 
 		c.JSON(http.StatusOK, gin.H{"data": todos})
@@ -60,8 +65,8 @@ func (todoController *TodoController) FindAll(db *sqlx.DB) func(*gin.Context) {
 
 func (todoController *TodoController) Create(db *sqlx.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
-		var todo Todo
-		err := c.Bind(&todo)
+		todo := new(Todo)
+		err := c.Bind(todo)
 		if err != nil {
 			log.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error"})
@@ -74,7 +79,6 @@ func (todoController *TodoController) Create(db *sqlx.DB) func(*gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error"})
 			return
 		}
-
 		defer stmt.Close()
 
 		if _, err := stmt.Exec(todo.Title, todo.Description, todo.Favorite); err != nil {
