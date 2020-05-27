@@ -1,6 +1,3 @@
-// TODO service and repository
-// TODO Dependecy injection ?
-
 package main
 
 import (

@@ -1,3 +1,7 @@
+// TODO service and repository ?
+// TODO Dependecy injection ?
+// TODO gorm orm ?
+
 package main
 
 import (
