@@ -1,7 +1,7 @@
-package main
+// TODO service and repository
+// TODO Dependecy injection ?
 
-//TODO service and repository
-// Dependecy injection ?
+package main
 
 import (
 	"database/sql"
@@ -14,14 +14,20 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// TodoController define the methods to perform operations on the to-do itens
 type TodoController struct {
 }
 
-func (todoController *TodoController) FindById(db *sqlx.DB) func(*gin.Context) {
+func NewTodoController() *TodoController {
+	return &TodoController{}
+}
+
+// FindByID get a to-do item by id
+func (todoController *TodoController) FindByID(db *sqlx.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
 		id := c.Params.ByName("id")
 		todo := new(Todo)
-		err := db.Get(todo, "SELECT id, title, description, favorite FROM todo where id = $1", id)
+		err := db.Get(todo, "SELECT id, title, description, favorite, completed FROM todo where id = $1", id)
 
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
@@ -35,11 +41,10 @@ func (todoController *TodoController) FindById(db *sqlx.DB) func(*gin.Context) {
 	}
 }
 
-// FindAll is the method to get all the todos from database
+// FindAll is the method to get all the to-dos from database
 func (todoController *TodoController) FindAll(db *sqlx.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
-		rows, err := db.Query("SELECT id, title, description, favorite FROM todo")
-
+		rows, err := db.Query("SELECT id, title, description, favorite, completed FROM todo")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error"})
 			return
@@ -52,17 +57,22 @@ func (todoController *TodoController) FindAll(db *sqlx.DB) func(*gin.Context) {
 			var title string
 			var description string
 			var favorite bool
-			err = rows.Scan(&id, &title, &description, &favorite)
+			var completed bool
+
+			err = rows.Scan(&id, &title, &description, &favorite, &completed)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error"})
 			}
-			todos = append(todos, Todo{id, title, description, favorite, nil})
+
+			todo := Todo{ID: id, Title: title, Completed: completed, Description: description, Favorite: favorite}
+			todos = append(todos, todo)
 		}
 
 		c.JSON(http.StatusOK, gin.H{"data": todos})
 	}
 }
 
+// Create create a new to do item
 func (todoController *TodoController) Create(db *sqlx.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
 		todo := new(Todo)
@@ -90,18 +100,3 @@ func (todoController *TodoController) Create(db *sqlx.DB) func(*gin.Context) {
 
 	}
 }
-
-/*func Create(db *sqlx.DB) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		err := db.QueryRow("INSERT INTO todo(title, description) VALUES ($1, $2)", "titulo", "descricao")
-
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("Internal error"))
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
-	}
-}*/
