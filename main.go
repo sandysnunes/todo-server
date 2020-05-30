@@ -13,6 +13,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const (
+	// HOST used by Gin
+	HOST = "localhost"
+	
+	// PORT used by Gin
+    PORT = "7777"
+)
+
 func main() {
 
 	dataSource := "postgres://postgres:postgres@localhost:5432/todo?sslmode=disable"
@@ -30,7 +38,8 @@ func main() {
 	route.GET("/todo/:id", todoController.FindByID(db))
 	route.POST("/todo", todoController.Create(db))
 
-	err = route.Run()
+	err = route.Run(HOST + ":" + PORT)
+	log.Println("Running @ http://" + HOST + ":" + PORT )
 	if err != nil {
 		log.Fatalln(err)
 	}

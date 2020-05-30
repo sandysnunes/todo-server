@@ -15,6 +15,7 @@ import (
 type TodoController struct {
 }
 
+// NewTodoController create a instance of TodoController
 func NewTodoController() *TodoController {
 	return &TodoController{}
 }
