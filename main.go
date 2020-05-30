@@ -1,7 +1,7 @@
 // TODO service and repository ?
 // TODO Dependecy injection ?
 // TODO gorm orm ?
-
+// TODO grapgql
 package main
 
 import (
